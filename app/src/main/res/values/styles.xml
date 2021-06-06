@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme. -->
+    <style name="Theme.Decoder" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/teal_700</item>
+        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/teal_200</item>
+        <item name="colorSecondaryVariant">@color/teal_700</item>
+        <item name="colorOnSecondary">@color/black</item>
+    </style>
+    <style name="Conteiner" parent="">
+        <item name="android:layout_width"> match_parent</item>
+        <item name="android:layout_height"> match_parent</item>
+        <item name="android:background">@drawable/background</item>
+    </style>
+    <style name="Login_Conteiner" parent="">
+        <item name="android:layout_width"> match_parent</item>
+        <item name="android:layout_height"> match_parent</item>
+        <item name="android:background">@color/white</item>
+    </style>
+    <style name="childsConteiner" >
+        <item name="android:layout_width"> match_parent</item>
+        <item name="android:layout_height"> wrap_content</item>
+    </style>
+
+    <style name="Center" parent="childsConteiner" >
+        <item name="android:padding">20dp</item>
+        <item name="android:layout_centerInParent">true</item>
+    </style>
+    <style name="btn" parent="@android:style/Widget.Button">
+        <item name="android:layout_width"> match_parent</item>
+        <item name="android:layout_height"> wrap_content</item>
+        <item name="android:background">@drawable/shadow</item>
+    </style>
+</resources>

@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "956100933495",
+    "firebase_url": "https://machinelearning-a285b.firebaseio.com",
+    "project_id": "machinelearning-a285b",
+    "storage_bucket": "machinelearning-a285b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:956100933495:android:be30c61838fbf9c1dc9372",
+        "android_client_info": {
+          "package_name": "com.game.learnto"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "956100933495-9nl7p9p2iuvaksmh5hrf42nbt3blrk4o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.game.learnto",
+            "certificate_hash": "4e8d526e79e405675f707fc27610813eb71d805b"
+          }
+        },
+        {
+          "client_id": "956100933495-1g87qiq3er37ulrtj6v6grl745l2dpgj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvGYLtIgPantOGcuTeL1egBJPnCyjr8oo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "956100933495-1g87qiq3er37ulrtj6v6grl745l2dpgj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+
+    <item
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_baseline_document_scanner_24"
+        android:id="@+id/camera_page"
+        android:title="Escanejar-ho">
+    </item>
+    <item
+        android:id="@+id/Paint_page"
+        app:showAsAction="never"
+        android:title="Escriure-ho">
+    </item>
+    <item
+        android:id="@+id/exitBtn"
+        android:icon="@drawable/ic_baseline_exit_to_app_24"
+        android:title="Log out">
+    </item>
+
+</menu>

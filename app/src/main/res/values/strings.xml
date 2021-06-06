@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">DeCoder</string>
+    <string name="login_text">LOGIN</string>
+    <string name="register_text">REGISTER</string>
+    <string name="error_message_email"> Introduiex  una adreça de correu valid</string>
+    <string name="error_message_password">Introduix el  Password</string>
+    <string name="error_password_match">Password Does Not Matches</string>
+    <string name="facebook_app_id">4096958887029763</string>
+    <string name="fb_login_protocol_scheme">fb4096958887029763</string>
+    <string-array name="models_disponibles">
+        <item>Firbase</item>
+        <item>costum</item>
+    </string-array>
+</resources>

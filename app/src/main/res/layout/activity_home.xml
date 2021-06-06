@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Conteiner"
+    tools:context=".HomeActivity">
+
+   <com.game.learnto.CustomViews.PaintView
+       android:id="@+id/paintView"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+      />
+
+
+   <androidx.coordinatorlayout.widget.CoordinatorLayout
+       android:layout_width="match_parent"
+       android:layout_height="match_parent">
+      <include layout="@layout/bottomsheet_paint"/>
+   </androidx.coordinatorlayout.widget.CoordinatorLayout>
+   <androidx.appcompat.widget.Toolbar
+       android:id="@+id/toolbarHome"
+       android:layout_width="match_parent"
+       android:layout_height="?actionBarSize"
+       android:background="@color/teal_700"
+       app:logo="@drawable/ic_round_account_circle_24"
+       app:title=""
+       app:titleTextColor="@color/white"
+       app:titleMarginStart="30dp"
+      />
+
+
+</RelativeLayout>
