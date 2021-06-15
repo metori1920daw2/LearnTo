@@ -8,6 +8,7 @@
     <string name="facebook_app_id">4096958887029763</string>
     <string name="fb_login_protocol_scheme">fb4096958887029763</string>
     <string-array name="models_disponibles">
+        <item>Default</item>
         <item>Firbase</item>
         <item>costum</item>
     </string-array>

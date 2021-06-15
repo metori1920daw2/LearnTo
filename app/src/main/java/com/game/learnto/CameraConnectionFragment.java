@@ -135,8 +135,7 @@ public class CameraConnectionFragment extends Fragment {
     private ImageReader previewReader;
     private CaptureRequest.Builder previewRequestBuilder;
     private CaptureRequest previewRequest;
-    private final CameraDevice.StateCallback stateCallback =
-            new CameraDevice.StateCallback() {
+    private final CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback() {
                 @Override
                 public void onOpened(final CameraDevice cd) {
                     // This method is called when the camera is opened.  We start camera preview here.
@@ -306,8 +305,7 @@ public class CameraConnectionFragment extends Fragment {
             // Danger, W.R.! Attempting to use too large a preview size could  exceed the camera
             // bus' bandwidth limitation, resulting in gorgeous previews but the storage of
             // garbage capture data.
-            previewSize =
-                    chooseOptimalSize(
+            previewSize =chooseOptimalSize(
                             map.getOutputSizes(SurfaceTexture.class),
                             inputSize.getWidth(),
                             inputSize.getHeight());
@@ -335,7 +333,7 @@ public class CameraConnectionFragment extends Fragment {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @SuppressLint("MissingPermission")
-    private void openCamera(final int width, final int height) {
+    public void openCamera(final int width, final int height) {
         setUpCameraOutputs();
         configureTransform(width, height);
         final Activity activity = getActivity();
@@ -363,7 +361,7 @@ public class CameraConnectionFragment extends Fragment {
     }
 
     /** Closes the current {@link CameraDevice}. */
-    private void closeCamera() {
+    public  void closeCamera() {
         try {
             cameraOpenCloseLock.acquire();
             if (null != captureSession) {

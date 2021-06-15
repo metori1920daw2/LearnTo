@@ -207,22 +207,25 @@ public class Model {
         }
 
     }
-    public static float[][][][] bitmapToInputArray(Bitmap img) {
-        Bitmap bitmap= Bitmap.createScaledBitmap(img, PIXEL_WIDTH, PIXEL_WIDTH, true);
-        int h = bitmap.getHeight();
-        int w = bitmap.getWidth();
+    private  static float[][][][] bitmapToInputArray(Bitmap bitmap) {
 
         int batchNum = 0;
-        float[][][][] input = new float[1][PIXEL_WIDTH][PIXEL_WIDTH][1];
-        for (int x = 0; x < w; x++) {
-            for (int y = 0; y < h; y++) {
+        float[][][][] input = new float[1][112][112][3];
+        for (int x = 0; x < 112; x++) {
+            for (int y = 0; y < 112; y++) {
                 int pixel = bitmap.getPixel(x, y);
+                // Normalize channel values to [-1.0, 1.0]. This requirement varies by
+                // model. For example, some models might require values to be normalized
                 // to the range [0.0, 1.0] instead.
-                //input[batchNum][x][y][0] = Color.red(pixel) / 255.0f;
-                System.out.println("Color.red(pixel) / 255.0f: "+pixel);
+                input[batchNum][x][y][0] = Color.red(pixel) / 255.0f;
+                input[batchNum][x][y][1] = Color.green(pixel) / 255.0f;
+                input[batchNum][x][y][2] = Color.blue(pixel) / 255.0f;
+                Log.i("Input","input"+input[batchNum][x][y][0]);
+                Log.i("input","input"+input[batchNum][x][y][1]);
 
             }
         }
+        // [END mlkit_bitmap_input]
 
         return input;
     }

@@ -27,12 +27,16 @@ import android.view.MenuItem;
 import android.view.Surface;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.game.learnto.Frame.Classifier;
+import com.game.learnto.Frame.ClassifierManager;
+import com.game.learnto.Frame.ObserverCamera;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -49,7 +53,7 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-public class CameraActivity extends AppCompatActivity implements ImageReader.OnImageAvailableListener {
+public class CameraActivity extends AppCompatActivity implements ImageReader.OnImageAvailableListener, ObserverCamera {
 
     private int sensorOrientation;
     private TextView textResult;
@@ -63,7 +67,11 @@ public class CameraActivity extends AppCompatActivity implements ImageReader.OnI
     private Toolbar toolbarCamera;
     private FirebaseAuth firebaseAuth;
     private FirebaseUser currentUser;
-
+    ClassifierManager classifierManager = null;
+    Spinner spinner = null;
+    CameraConnectionFragment camera2Fragment = null;
+    Button openCamera, closeCamera;
+    ImageView frame;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,23 +83,30 @@ public class CameraActivity extends AppCompatActivity implements ImageReader.OnI
         sheetBehavior = BottomSheetBehavior.from(mBottomSheetLayout);
         header_Arrow_Image = findViewById(R.id.bottom_sheet_arrow_camera);
 
-        Spinner spinner =  findViewById(R.id.modelCamera);
+        frame  = findViewById(R.id.imageFrome);
+        spinner =  findViewById(R.id.modelCamera);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.models_disponibles, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
-        //currentUser=firebaseAuth.getCurrentUser();
-        //if(currentUser!= null)
-          //  getSupportActionBar().setTitle(currentUser.getDisplayName());
+        openCamera = findViewById(R.id.playCamera);
+        closeCamera = findViewById(R.id.StopCamera);
+        closeCamera.setOnClickListener(v -> {
+            if(camera2Fragment !=null)
+                camera2Fragment.closeCamera();
 
-       /* header_Arrow_Image.setOnClickListener(v -> {
-
-            if(sheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED){
-
-            } else {
-                sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        });
+        openCamera.setOnClickListener(v -> {
+            if(camera2Fragment !=null){
+                camera2Fragment.openCamera(640, 480);
+                setFragment();
             }
 
-        });*/
+
+        });
+
+        classifierManager = ClassifierManager.getInstance(this);
+        classifierManager.registerObserverCamera(this);
+
 
         sheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
@@ -114,7 +129,7 @@ public class CameraActivity extends AppCompatActivity implements ImageReader.OnI
             //TODO show live camera frame
             setFragment();
         }
-        //Model.LoadModel();
+
 
 
     }
@@ -151,7 +166,7 @@ public class CameraActivity extends AppCompatActivity implements ImageReader.OnI
             e.printStackTrace();
         }
         Fragment fragment;
-        CameraConnectionFragment camera2Fragment = CameraConnectionFragment.newInstance((size, rotation) -> {
+        camera2Fragment = CameraConnectionFragment.newInstance((size, rotation) -> {
                     previewHeight = size.getHeight();
                     previewWidth = size.getWidth();
                     Log.d("tryOrientation","rotation: "+rotation+"   orientation: "+getScreenOrientation()+"  "+previewWidth+"   "+previewHeight);
@@ -162,10 +177,10 @@ public class CameraActivity extends AppCompatActivity implements ImageReader.OnI
         camera2Fragment.setCamera(cameraId);
         fragment = camera2Fragment;
         getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+
     }
 
 
-    //TODO getting frames of live camera footage and passing them to model
     private boolean isProcessingFrame = false;
     private byte[][] yuvBytes = new byte[3][];
     private int[] rgbBytes = null;
@@ -224,12 +239,9 @@ public class CameraActivity extends AppCompatActivity implements ImageReader.OnI
         imageConverter.run();
         rgbFrameBitmap = Bitmap.createBitmap(previewWidth, previewHeight, Bitmap.Config.ARGB_8888);
         rgbFrameBitmap.setPixels(rgbBytes, 0, previewWidth, 0, 0, previewWidth, previewHeight);
-        Bitmap rotateBitmap =   ImageUtils.rotateBitmap(rgbFrameBitmap,6);
-      TensorImage img =  Model.getImageTensor(rotateBitmap);
+     //   classifierManager.predicImageCamera(ImageUtils.doGreyscale(  ));
+        classifierManager.predicImageCamera(rgbFrameBitmap);
 
-       // Model.doInference(img);
-        //runTextRecognition(rotateBitmap);
-        postInferenceCallback.run();
     }
 
 
@@ -294,10 +306,12 @@ public class CameraActivity extends AppCompatActivity implements ImageReader.OnI
                 displayToast("camera_page");
                 break;
             case R.id.exitBtn:
+                classifierManager.registerObserverCamera(this);
                 FirebaseAuth.getInstance().signOut();
                 startActivity( new Intent(getApplicationContext(),LoginActivity.class));
                 break;
             case R.id.Paint_page:
+                classifierManager.registerObserverCamera(this);
                 startActivity( new Intent(getApplicationContext(),HomeActivity.class));
                 break;
             default:
@@ -318,4 +332,20 @@ public class CameraActivity extends AppCompatActivity implements ImageReader.OnI
         handler = new Handler(handlerThread.getLooper());
     }
 
+
+
+    @Override
+    public void UpdateRecognition(String predic, boolean Ok) {
+        if(Ok){
+            postInferenceCallback.run();
+            textResult.setText(predic);
+        }
+    }
+
+    @Override
+    public void UpdateRecognition(boolean IsProcessing) {
+        if(!IsProcessing){
+            postInferenceCallback.run();
+        }
+    }
 }

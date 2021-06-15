@@ -8,6 +8,7 @@ import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.media.ExifInterface;
+import android.media.ThumbnailUtils;
 import android.os.Environment;
 
 import java.io.File;
@@ -140,75 +141,21 @@ public class ImageUtils {
             }
         }
     }
-    public static Bitmap toGrayScale(Bitmap bmpOriginal) {
-
-        int width, height;
-        height = bmpOriginal.getHeight();
-        width = bmpOriginal.getWidth();
-
-        Bitmap bmpGrayscale = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas c = new Canvas(bmpGrayscale);
-        Paint paint = new Paint();
-        ColorMatrix cm = new ColorMatrix();
-        cm.setSaturation(0);
-        ColorMatrixColorFilter f = new ColorMatrixColorFilter(cm);
-        paint.setColorFilter(f);
-        c.drawBitmap(bmpOriginal, 0, 0, paint);
-        bmpOriginal.recycle();
-        return bmpGrayscale;
-    }
-    public static Bitmap rotateBitmap(Bitmap bitmap, int orientation) {
-
+    public  static  Bitmap rotateBitmap(Bitmap original, float degrees) {
         Matrix matrix = new Matrix();
-        switch (orientation) {
-            case ExifInterface.ORIENTATION_NORMAL:
-                return bitmap;
-            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
-                matrix.setScale(-1, 1);
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_180:
-                matrix.setRotate(180);
-                break;
-            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
-                matrix.setRotate(180);
-                matrix.postScale(-1, 1);
-                break;
-            case ExifInterface.ORIENTATION_TRANSPOSE:
-                matrix.setRotate(90);
-                matrix.postScale(-1, 1);
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_90:
-                matrix.setRotate(90);
-                break;
-            case ExifInterface.ORIENTATION_TRANSVERSE:
-                matrix.setRotate(-90);
-                matrix.postScale(-1, 1);
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_270:
-                matrix.setRotate(-90);
-                break;
-            default:
-                return bitmap;
-        }
-        try {
-            Bitmap bmRotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-            bitmap.recycle();
-            return bmRotated;
-        }
-        catch (OutOfMemoryError e) {
-            e.printStackTrace();
-            return null;
-        }
+        matrix.preRotate(degrees);
+        Bitmap rotatedBitmap = Bitmap.createBitmap(original, 0, 0, original.getWidth(), original.getHeight(), matrix, true);
+        original.recycle();
+        return rotatedBitmap;
     }
-    public  void doGreyscale(Bitmap src) {
+
+    public static Bitmap doGreyscale(Bitmap src) {
         // constant factors
         final double GS_RED = 0.299;
         final double GS_GREEN = 0.587;
         final double GS_BLUE = 0.114;
 
-        // create output bitmap
         Bitmap bmOut = Bitmap.createBitmap(src.getWidth(), src.getHeight(), src.getConfig());
-        // pixel information
         int A, R, G, B;
         int pixel;
 
@@ -226,16 +173,17 @@ public class ImageUtils {
                 G = Color.green(pixel);
                 B = Color.blue(pixel);
                 // take conversion up to one single value
-                A = (int) (GS_RED * R + GS_GREEN * G + GS_BLUE * B);
-                System.out.println("A: "+A/ 255.0f +" "+A);
-
-                //R = G = B = (int)(GS_RED * R + GS_GREEN * G + GS_BLUE * B);
+                R = G = B = (int)(GS_RED * R + GS_GREEN * G + GS_BLUE * B);
                 // set new pixel color to output bitmap
-                //bmOut.setPixel(x, y, Color.argb(A, R, G, B));
+                bmOut.setPixel(x, y, Color.argb(A, R, G, B));
             }
         }
 
-        // return final image
+         return bmOut;
 
+    }
+    public static Bitmap cropCenter(Bitmap bmp) {
+        int dimension = Math.min(bmp.getWidth(), bmp.getHeight());
+        return ThumbnailUtils.extractThumbnail(bmp, dimension, dimension);
     }
 }
