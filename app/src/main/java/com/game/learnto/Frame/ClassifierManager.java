@@ -20,8 +20,8 @@ public class ClassifierManager  implements Observable {
     private ArrayList<ObserverPaint> observersPaint;
     private static ClassifierManager instance;
     private Context ctx;
-    Manual manual = null;
-    Fotografia fotografia = null;
+    private Manual manual = null;
+    private Fotografia fotografia = null;
 
 
     public ClassifierManager(Context context) {

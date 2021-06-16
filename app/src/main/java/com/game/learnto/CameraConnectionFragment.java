@@ -521,13 +521,12 @@ public class CameraConnectionFragment extends Fragment {
     static class CompareSizesByArea implements Comparator<Size> {
         @Override
         public int compare(final Size lhs, final Size rhs) {
-            // We cast here to ensure the multiplications won't overflow
             return Long.signum(
                     (long) lhs.getWidth() * lhs.getHeight() - (long) rhs.getWidth() * rhs.getHeight());
         }
     }
 
-    /** Shows an error message dialog. */
+    /** Mostrar missatge d'error. */
     public static class ErrorDialog extends DialogFragment {
         private static final String ARG_MESSAGE = "message";
 

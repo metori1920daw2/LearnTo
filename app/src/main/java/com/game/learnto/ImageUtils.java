@@ -1,5 +1,6 @@
 package com.game.learnto;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -11,6 +12,7 @@ import android.media.ExifInterface;
 import android.media.ThumbnailUtils;
 import android.os.Environment;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 
@@ -21,10 +23,6 @@ public class ImageUtils {
 
 
 
-    /**
-     * Utility method to compute the allocated size in bytes of a YUV420SP image of the given
-     * dimensions.
-     */
     public static int getYUVByteSize(final int width, final int height) {
         // The luminance plane requires 1 byte per pixel.
         final int ySize = width * height;
@@ -36,21 +34,7 @@ public class ImageUtils {
         return ySize + uvSize;
     }
 
-    /**
-     * Saves a Bitmap object to disk for analysis.
-     *
-     * @param bitmap The bitmap to save.
-     */
-    public static void saveBitmap(final Bitmap bitmap) {
-        saveBitmap(bitmap, "preview.png");
-    }
 
-    /**
-     * Saves a Bitmap object to disk for analysis.
-     *
-     * @param bitmap The bitmap to save.
-     * @param filename The location to save the bitmap to.
-     */
     public static void saveBitmap(final Bitmap bitmap, final String filename) {
         final String root =
                 Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "tensorflow";
@@ -148,6 +132,48 @@ public class ImageUtils {
         original.recycle();
         return rotatedBitmap;
     }
+    public static Bitmap rotateBitmapG(Bitmap bitmap, int orientation) {
+        Matrix matrix = new Matrix();
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_NORMAL:
+                return bitmap;
+            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                matrix.setScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                matrix.setRotate(180);
+                break;
+            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                matrix.setRotate(180);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_TRANSPOSE:
+                matrix.setRotate(90);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                matrix.setRotate(90);
+                break;
+            case ExifInterface.ORIENTATION_TRANSVERSE:
+                matrix.setRotate(-90);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                matrix.setRotate(-90);
+                break;
+            default:
+                return bitmap;
+        }
+        try {
+            Bitmap bmRotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+            bitmap.recycle();
+
+            return bmRotated;
+        } catch (OutOfMemoryError e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     public static Bitmap doGreyscale(Bitmap src) {
         // constant factors
@@ -185,5 +211,33 @@ public class ImageUtils {
     public static Bitmap cropCenter(Bitmap bmp) {
         int dimension = Math.min(bmp.getWidth(), bmp.getHeight());
         return ThumbnailUtils.extractThumbnail(bmp, dimension, dimension);
+    }
+
+    public Bitmap BITMAP_RESIZER(Bitmap bitmap,int newWidth,int newHeight) {
+        Bitmap scaledBitmap = Bitmap.createBitmap(newWidth, newHeight, Bitmap.Config.ARGB_8888);
+
+        float ratioX = newWidth / (float) bitmap.getWidth();
+        float ratioY = newHeight / (float) bitmap.getHeight();
+        float middleX = newWidth / 2.0f;
+        float middleY = newHeight / 2.0f;
+
+        Matrix scaleMatrix = new Matrix();
+        scaleMatrix.setScale(ratioX, ratioY, middleX, middleY);
+
+        Canvas canvas = new Canvas(scaledBitmap);
+        canvas.setMatrix(scaleMatrix);
+        canvas.drawBitmap(bitmap, middleX - bitmap.getWidth() / 2, middleY - bitmap.getHeight() / 2, new Paint(Paint.FILTER_BITMAP_FLAG));
+
+        return scaledBitmap;
+
+    }
+    private Bitmap resize(Bitmap bitmap){
+        Bitmap newBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), bitmap.getConfig());
+        Canvas canvas = new Canvas(newBitmap);
+        canvas.drawColor(Color.WHITE);
+        canvas.drawBitmap(bitmap, 0, 0, null);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        newBitmap.compress(Bitmap.CompressFormat.PNG, 50, outputStream);
+        return newBitmap;
     }
 }

@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
-import androidx.databinding.DataBindingUtil;
 
 import android.Manifest;
 import android.app.Fragment;
@@ -18,6 +17,7 @@ import android.media.Image;
 import android.media.ImageReader;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
@@ -34,24 +34,23 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.game.learnto.Frame.Classifier;
 import com.game.learnto.Frame.ClassifierManager;
 import com.game.learnto.Frame.ObserverCamera;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
 
 import org.tensorflow.lite.Interpreter;
-import org.tensorflow.lite.support.image.TensorImage;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
 public class CameraActivity extends AppCompatActivity implements ImageReader.OnImageAvailableListener, ObserverCamera {
 
@@ -65,13 +64,11 @@ public class CameraActivity extends AppCompatActivity implements ImageReader.OnI
     private BottomSheetBehavior sheetBehavior;
     private ImageView header_Arrow_Image;
     private Toolbar toolbarCamera;
-    private FirebaseAuth firebaseAuth;
-    private FirebaseUser currentUser;
     ClassifierManager classifierManager = null;
     Spinner spinner = null;
     CameraConnectionFragment camera2Fragment = null;
-    Button openCamera, closeCamera;
-    ImageView frame;
+    Button openCamera, closeCamera, prova;
+    private Bitmap rgbFrameBitmap;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,7 +80,7 @@ public class CameraActivity extends AppCompatActivity implements ImageReader.OnI
         sheetBehavior = BottomSheetBehavior.from(mBottomSheetLayout);
         header_Arrow_Image = findViewById(R.id.bottom_sheet_arrow_camera);
 
-        frame  = findViewById(R.id.imageFrome);
+
         spinner =  findViewById(R.id.modelCamera);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.models_disponibles, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -95,6 +92,7 @@ public class CameraActivity extends AppCompatActivity implements ImageReader.OnI
                 camera2Fragment.closeCamera();
 
         });
+
         openCamera.setOnClickListener(v -> {
             if(camera2Fragment !=null){
                 camera2Fragment.openCamera(640, 480);
@@ -122,11 +120,9 @@ public class CameraActivity extends AppCompatActivity implements ImageReader.OnI
                 header_Arrow_Image.setRotation(slideOffset * 180);
             }
         });
-        //TODO ask for camera permissions
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 121);
         } else {
-            //TODO show live camera frame
             setFragment();
         }
 
@@ -142,8 +138,6 @@ public class CameraActivity extends AppCompatActivity implements ImageReader.OnI
     }
 
 
-
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -156,7 +150,9 @@ public class CameraActivity extends AppCompatActivity implements ImageReader.OnI
     }
 
     //TODO fragment which show llive footage from camera
+
     int previewHeight = 0,previewWidth = 0;
+
     protected void setFragment() {
         final CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
         String cameraId = null;
@@ -187,7 +183,7 @@ public class CameraActivity extends AppCompatActivity implements ImageReader.OnI
     private int yRowStride;
     private Runnable postInferenceCallback;
     private Runnable imageConverter;
-    private Bitmap rgbFrameBitmap;
+
     @Override
     public void onImageAvailable(ImageReader reader) {
         if (previewWidth == 0 || previewHeight == 0)
@@ -235,17 +231,18 @@ public class CameraActivity extends AppCompatActivity implements ImageReader.OnI
     }
 
 
-    private void processImage() {
+    private void processImage(){
         imageConverter.run();
         rgbFrameBitmap = Bitmap.createBitmap(previewWidth, previewHeight, Bitmap.Config.ARGB_8888);
         rgbFrameBitmap.setPixels(rgbBytes, 0, previewWidth, 0, 0, previewWidth, previewHeight);
-     //   classifierManager.predicImageCamera(ImageUtils.doGreyscale(  ));
-        classifierManager.predicImageCamera(rgbFrameBitmap);
+        classifierManager.predicImageCamera(ImageUtils.rotateBitmapG(ImageUtils.doGreyscale(rgbFrameBitmap),6));
+
+
 
     }
 
 
-    protected void fillBytes(final Image.Plane[] planes, final byte[][] yuvBytes) {
+    private void fillBytes(final Image.Plane[] planes, final byte[][] yuvBytes) {
         for (int i = 0; i < planes.length; ++i) {
             final ByteBuffer buffer = planes[i].getBuffer();
             if (yuvBytes[i] == null) {
@@ -254,32 +251,7 @@ public class CameraActivity extends AppCompatActivity implements ImageReader.OnI
             buffer.get(yuvBytes[i]);
         }
     }
-    public  void runTextRecognition(Bitmap img) {
-        InputImage image = InputImage.fromBitmap(img, 0);
-        TextRecognizer recognizer = TextRecognition.getClient();
-        recognizer.process(image).addOnSuccessListener(texts -> processTextRecognitionResult(texts))
-                .addOnFailureListener(e -> { e.printStackTrace(); });
-    }
-    private  void processTextRecognitionResult(Text texts) {
-        List<Text.TextBlock> blocks = texts.getTextBlocks();
-        if (blocks.size() == 0) {
-            System.out.println("NO es troba cap text en la image");
-            return;
-        }
-        String  textos="";
-        for (int i = 0; i < blocks.size(); i++) {
-            List<Text.Line> lines = blocks.get(i).getLines();
-            for (int j = 0; j < lines.size(); j++) {
-                List<Text.Element> elements = lines.get(j).getElements();
-                for (int k = 0; k < elements.size(); k++) {
-                    textos=  textos+" "+elements.get(k).getText();;
-                    textResult.setText(textos);
-                    System.out.println( "text trobat: "+textos);
 
-                }
-            }
-        }
-    }
     protected int getScreenOrientation() {
         switch (getWindowManager().getDefaultDisplay().getRotation()) {
             case Surface.ROTATION_270:

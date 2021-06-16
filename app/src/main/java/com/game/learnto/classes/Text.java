@@ -20,7 +20,7 @@ import java.text.DecimalFormat;
 
 public abstract class Text {
     private final String TAG = this.getClass().getSimpleName();
-    char[] labels = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
+    protected char[] labels = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
 
     protected Interpreter tflite;
     protected ByteBuffer inputBuffer = null;
@@ -85,7 +85,8 @@ public abstract class Text {
         for (int i = 0; i < probs.length; i++) {
             if (probs[i] > maxProb) {
                 System.out.println(probs[i]);
-                maxProb  = Float.parseFloat(df.format(probs[i]));
+                //maxProb  = Float.parseFloat(df.format(probs[i]));
+                maxProb =  probs[i];
                 if (maxProb > 0.70){
                     System.out.println("maxProb: "+maxProb);
                     maxIndex = i;

@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -28,7 +27,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 
-import com.game.learnto.Frame.Classifier;
 import com.game.learnto.CustomViews.PaintView;
 import com.game.learnto.Frame.ClassifierManager;
 import com.game.learnto.Frame.ObserverPaint;
@@ -50,7 +48,6 @@ public class HomeActivity extends AppCompatActivity implements ObserverPaint {
     private Toolbar toolbarHome;
     private FirebaseAuth firebaseAuth;
     private FirebaseUser currentUser;
-    Model model;
     ClassifierManager classifierManager = null;
     LinearLayout probabilyPredictions;
     TextView txt;
@@ -84,7 +81,7 @@ public class HomeActivity extends AppCompatActivity implements ObserverPaint {
 
         classifierManager = ClassifierManager.getInstance(this);
         classifierManager.registerObserverPaint(this);
-        // model.LoadModel();
+
         DisplayMetrics matrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(matrics);
 
@@ -96,8 +93,7 @@ public class HomeActivity extends AppCompatActivity implements ObserverPaint {
         header_Arrow_Image = findViewById(R.id.bottom_sheet_arrow);
         textRecunegut = findViewById(R.id.textRecunegut);
 
-        //reset = findViewById(R.id.reset);
-        // Validar = findViewById(R.id.Validar);
+
         clearnCanvas.setOnClickListener(v -> {
             textRecunegut.setText("");
         });
@@ -141,7 +137,6 @@ public class HomeActivity extends AppCompatActivity implements ObserverPaint {
 
         Uri imageUri;
         if (resultCode == RESULT_OK && reqCode == 100){
-            //imageUri = data.getData();
             imageUri= data.getData();
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
@@ -152,31 +147,6 @@ public class HomeActivity extends AppCompatActivity implements ObserverPaint {
         }
     }
 
-    private void showResultsInBottomSheet(List<Classifier.Recognition> results) {
-        if (results != null && results.size() >= 3) {
-            Classifier.Recognition recognition = results.get(0);
-            if (recognition != null) {
-                if (recognition.getConfidence() != null && recognition.getTitle() != null) {
-                    txt_prediccio1.setText(recognition.getTitle() + "-->" + String.format("%.1f%n", (100 * recognition.getConfidence())) + "%");
-                }
-
-            }
-
-            Classifier.Recognition recognition1 = results.get(1);
-            if (recognition1 != null) {
-                if (recognition1.getConfidence() != null) {
-                    txt_prediccio2.setText(recognition1.getTitle() + "-->" + String.format("%.1f%n", (100 * recognition1.getConfidence())) + "%");
-                }
-            }
-
-            Classifier.Recognition recognition2 = results.get(2);
-            if (recognition2 != null) {
-                if (recognition2.getConfidence() != null && recognition2.getTitle() != null) {
-                    txt_prediccio3.setText(recognition2.getTitle() + "-->" + String.format("%.1f%n", (100 * recognition2.getConfidence())) + "%");
-                }
-            }
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -210,18 +180,7 @@ public class HomeActivity extends AppCompatActivity implements ObserverPaint {
         Toast.makeText(HomeActivity.this, s, Toast.LENGTH_SHORT).show();
     }
 
-    private int getScreenOrientation() {
-        switch (getWindowManager().getDefaultDisplay().getRotation()) {
-            case Surface.ROTATION_270:
-                return 270;
-            case Surface.ROTATION_180:
-                return 180;
-            case Surface.ROTATION_90:
-                return 90;
-            default:
-                return 0;
-        }
-    }
+
 
 
 

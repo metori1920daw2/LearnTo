@@ -5,24 +5,19 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
 
 import androidx.annotation.Nullable;
 
-import com.game.learnto.Frame.CharsDetector;
 import com.game.learnto.Frame.ClassifierManager;
 import com.game.learnto.ImageUtils;
-import com.game.learnto.Model;
-import com.game.learnto.R;
 import com.game.learnto.classes.Manual;
 
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
@@ -32,9 +27,9 @@ import java.util.ArrayList;
 
 
 public class PaintView extends View {
-    public static int BRUSH_SIZE = 50;
-    public static final int DEFAULT_COLOR = Color.BLACK;
-    public static final int DEFAULT_BG_COLOR =  Color.WHITE;;
+    private static int BRUSH_SIZE = 50;
+    private static final int DEFAULT_COLOR = Color.BLACK;
+    private static final int DEFAULT_BG_COLOR =  Color.WHITE;;
     private static final float TOUCH_TOLERANCE = 4;
     private float mX, mY;
     private Path mPath;
@@ -47,17 +42,12 @@ public class PaintView extends View {
     private Canvas mCanvas;
     private Paint mBitmapPaint = new Paint(Paint.DITHER_FLAG);
     private int count = 0;
-    public static Handler handler = new Handler();
-    public static Runnable runnable;
-    public static Handler handlerLoadImage = new Handler();
-    public static Runnable runnableLoadImage;
+    private static Handler handler = new Handler();
+    private static Runnable runnable;
     int delay = 1000;
     private Context ctx;
     private static final int PIXEL_WIDTH = 32;
-    private static  TensorBuffer  probabilityBuffer = null;
-    Model model;
-    ClassifierManager classifierManager= null;
-    CharsDetector charsDetector = null;
+   private  ClassifierManager classifierManager= null;
     Manual manual;
     public PaintView(Context context) {
         super(context, null);
@@ -77,9 +67,7 @@ public class PaintView extends View {
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mPaint.setXfermode(null);
         mPaint.setAlpha(0xff);
-        model = new Model(context);
         classifierManager = ClassifierManager.getInstance(context);
-        charsDetector =  new CharsDetector((Activity) context);
         manual = new Manual((Activity) context);
 
 
@@ -161,7 +149,7 @@ public class PaintView extends View {
                 handler.postDelayed(runnable = () -> {
                     handler.postDelayed(runnable, delay);
                     classifierManager.predicImagePaint(mBitmap);
-                    this.Clear();
+                   // this.Clear();
                     handler.removeCallbacks(runnable);
                 }, delay);
                 touchUp();
@@ -225,19 +213,7 @@ public  void LoadImage( Bitmap bm){
     }, delay);
 
 }
-    private int getScreenOrientation() {
-        int orientation = ctx.getResources().getConfiguration().orientation;
-        switch (orientation) {
-            case Surface.ROTATION_270:
-                return 270;
-            case Surface.ROTATION_180:
-                return 180;
-            case Surface.ROTATION_90:
-                return 90;
-            default:
-                return 0;
-        }
-    }
+
 
 
 
