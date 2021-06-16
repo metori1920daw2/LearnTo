@@ -141,7 +141,6 @@ public class CameraActivity extends AppCompatActivity implements ImageReader.OnI
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        //TODO show live camera footage
         if (grantResults.length > 0  && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             setFragment();
         } else {
@@ -149,7 +148,7 @@ public class CameraActivity extends AppCompatActivity implements ImageReader.OnI
         }
     }
 
-    //TODO fragment which show llive footage from camera
+
 
     int previewHeight = 0,previewWidth = 0;
 
